@@ -1,11 +1,16 @@
 
-const { body, validationResult } = require('express-validator');
-
 const jwt = require('jsonwebtoken');
 
 module.exports = function(req, res, next) {
-  // Get token from header
-  const token = req.header('x-auth-token');
+  console.log('Full Authorization header:', req.header('Authorization'));
+  
+  // Use a static token for testing
+  const useStaticToken = process.env.USE_STATIC_TOKEN === 'true';
+  const staticToken = process.env.STATIC_TOKEN;
+  
+  // Get token from header or use static token
+  const token = useStaticToken ? staticToken : (req.header('Authorization')?.split(' ')[1] || null);
+  console.log('Used token:', token);
 
   // Check if no token
   if (!token) {
@@ -18,6 +23,7 @@ module.exports = function(req, res, next) {
     req.user = decoded.user;
     next();
   } catch (err) {
+    console.error('Token verification failed:', err);
     res.status(401).json({ msg: 'Token is not valid' });
   }
 };
