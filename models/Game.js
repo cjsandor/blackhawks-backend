@@ -1,27 +1,24 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const GameSchema = new mongoose.Schema({
+const Game = sequelize.define('Game', {
   date: {
-    type: Date,
-    required: true
+    type: DataTypes.DATE,
+    allowNull: false
   },
   time: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
   opponent: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
   attendance: {
-    type: Map,
-    of: Boolean,
-    default: {}
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.JSONB,
+    allowNull: false,
+    defaultValue: {}
   }
 });
 
-module.exports = mongoose.model('Game', GameSchema);
+module.exports = Game;

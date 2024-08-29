@@ -1,3 +1,6 @@
+
+const { body, validationResult } = require('express-validator');
+
 const jwt = require('jsonwebtoken');
 
 module.exports = function(req, res, next) {

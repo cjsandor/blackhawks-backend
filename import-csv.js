@@ -1,41 +1,40 @@
 const fs = require('fs');
 const csv = require('csv-parser');
-const { MongoClient } = require('mongodb');
-require('dotenv').config();
-
-const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri);
+const Game = require('./models/Game');
+const sequelize = require('./config/database');
 
 async function importCSV() {
   try {
-    await client.connect();
-    console.log('Connected to MongoDB');
+    await sequelize.authenticate();
+    console.log('Connected to the database.');
 
-    const database = client.db('blackhawks'); // replace with your database name
-    const collection = database.collection('games'); // replace with your collection name
+    // Add this line to sync the model with the database
+    await Game.sync({ force: true });
+    console.log('Game model synced with database.');
 
     const results = [];
 
-    fs.createReadStream('blackhawks.csv') // replace with your CSV file name
+    fs.createReadStream('blackhawks.csv')
       .pipe(csv())
       .on('data', (data) => results.push(data))
       .on('end', async () => {
-        console.log(`CSV file successfully processed. ${results.length} records found.`);
+        console.log('CSV file successfully processed');
 
-        // Convert date strings to Date objects and ensure correct data types
-        const formattedResults = results.map(game => ({
-          ...game,
-          date: new Date(game.date),
-          attendance: {},  // Initialize empty attendance object
-        }));
+        for (const row of results) {
+          await Game.create({
+            date: new Date(row.date),
+            time: row.time,
+            opponent: row.opponent,
+            attendance: {}
+          });
+        }
 
-        const result = await collection.insertMany(formattedResults);
-        console.log(`${result.insertedCount} documents were inserted`);
-        client.close();
+        console.log(`${results.length} games were inserted into the database`);
+        process.exit(0);
       });
-  } catch (err) {
-    console.error('Error:', err);
-    client.close();
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+    process.exit(1);
   }
 }
 

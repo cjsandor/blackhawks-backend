@@ -1,17 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const Game = require('../models/Game');
+const auth = require('../middleware/auth');
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
-    const games = await Game.find().sort({ date: 1 });
+    const games = await Game.findAll({
+      order: [['date', 'ASC']]
+    });
     
     const scheduleData = games.map(game => ({
-      id: game._id,
-      date: game.date.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      id: game.id,
+      date: game.date.toISOString(), // Send the full ISO string
       time: game.time,
       opponent: game.opponent,
-      attendance: Object.fromEntries(game.attendance)
+      attendance: game.attendance || {}
     }));
 
     res.json(scheduleData);

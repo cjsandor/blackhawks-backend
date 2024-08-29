@@ -1,35 +1,50 @@
 const express = require('express');
 const router = express.Router();
-
-const User = require('../models/User');
 const Game = require('../models/Game');
+const { literal } = require('sequelize');
 
-// Example: Creating a new game
-router.post('/games', async (req, res) => {
+// Creating a new game
+router.post('/', async (req, res) => {
   try {
-    const newGame = new Game({
+    const newGame = await Game.create({
       date: req.body.date,
       time: req.body.time,
       opponent: req.body.opponent
     });
-    const game = await newGame.save();
-    res.json(game);
+    res.json(newGame);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Example: Updating game attendance
-router.put('/games/:id/attendance', async (req, res) => {
+// Updating game attendance
+router.put('/:id/attendance', async (req, res) => {
   try {
-    const game = await Game.findById(req.params.id);
+    const game = await Game.findByPk(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
     
-    game.attendance.set(req.body.userId, req.body.attending);
-    await game.save();
+    const { person, isAttending } = req.body;
+    console.log(`Updating attendance for game ${game.id}, person: ${person}, isAttending: ${isAttending}`);
     
-    res.json(game);
+    let attendance = game.attendance || {};
+    console.log('Current attendance:', attendance);
+    
+    if (isAttending) {
+      await game.update({
+        attendance: literal(`jsonb_set(COALESCE(attendance, '{}'), '{${person}}', 'true')`)
+      });
+    } else {
+      await game.update({
+        attendance: literal(`attendance - '${person}'`)
+      });
+    }
+    
+    const updatedGame = await Game.findByPk(req.params.id);
+    console.log('Game after update:', updatedGame.toJSON());
+    
+    res.json(updatedGame);
   } catch (err) {
+    console.error('Error updating attendance:', err);
     res.status(500).json({ message: err.message });
   }
 });
