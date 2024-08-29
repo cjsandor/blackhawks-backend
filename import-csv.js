@@ -25,7 +25,7 @@ async function importCSV() {
             date: new Date(row.date),
             time: row.time,
             opponent: row.opponent,
-            attendance: {}
+            attendance: {}  // Initialize as an empty object
           });
         }
 

@@ -46,4 +46,16 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Add this route to your existing auth.js file
+router.get('/generate-static-token', (req, res) => {
+  const payload = {
+    user: {
+      id: 'static_user_id'
+    }
+  };
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+  console.log('Generated static token:', token);
+  res.json({ token });
+});
+
 module.exports = router;
