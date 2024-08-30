@@ -1,3 +1,4 @@
+// File: blackhawks-backend/middleware/auth.js
 
 const jwt = require('jsonwebtoken');
 
@@ -9,7 +10,7 @@ module.exports = function(req, res, next) {
   const staticToken = process.env.STATIC_TOKEN;
   
   // Get token from header or use static token
-  const token = useStaticToken ? staticToken : (req.header('Authorization')?.split(' ')[1] || null);
+  const token = req.header('Authorization')?.split(' ')[1] || null;
   console.log('Used token:', token);
 
   // Check if no token
@@ -20,9 +21,12 @@ module.exports = function(req, res, next) {
   // Verify token
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user;
+    req.user = { id: decoded.id };
     next();
   } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ msg: 'Token has expired. Please log in again.' });
+    }
     console.error('Token verification failed:', err);
     res.status(401).json({ msg: 'Token is not valid' });
   }

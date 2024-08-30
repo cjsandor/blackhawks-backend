@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const sequelize = require('./config/database');
-const createDefaultUser = require('./createDefaultUser');
+const createDefaultUsers = require('./createDefaultUser');
+const { User, Game, Attendance } = require('./models/associations');
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -40,7 +42,7 @@ async function startServer() {
     await sequelize.sync();
     console.log('Database synchronized.');
 
-    await createDefaultUser();
+    await createDefaultUsers();
 
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {

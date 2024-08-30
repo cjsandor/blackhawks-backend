@@ -1,26 +1,29 @@
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 
-async function createDefaultUser() {
+async function createDefaultUsers() {
   try {
-    // Check if the default user already exists
-    const existingUser = await User.findOne({ where: { username: 'admin' } });
+    const ticketHolders = ['Charlie', 'Russell', 'Sam', 'Colin'];
+    const defaultPassword = 'password123';
 
-    if (!existingUser) {
-      // Create the default user
-      const hashedPassword = await bcrypt.hash('password123', 10);
-      const newUser = await User.create({
-        username: 'admin',
-        password: hashedPassword,
-        isAdmin: true
-      });
-      console.log('Default admin user created successfully:', newUser.toJSON());
-    } else {
-      console.log('Default admin user already exists:', existingUser.toJSON());
+    for (const name of ticketHolders) {
+      const existingUser = await User.findOne({ where: { name } });
+
+      if (!existingUser) {
+        const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+        const newUser = await User.create({
+          name,
+          email: `${name.toLowerCase()}@example.com`,
+          password_hash: hashedPassword
+        });
+        console.log(`Default user ${name} created successfully:`, newUser.toJSON());
+      } else {
+        console.log(`User ${name} already exists:`, existingUser.toJSON());
+      }
     }
   } catch (error) {
-    console.error('Unable to create default user:', error);
+    console.error('Unable to create default users:', error);
   }
 }
 
-module.exports = createDefaultUser;
+module.exports = createDefaultUsers;

@@ -1,24 +1,38 @@
+// File: blackhawks-backend/models/Game.js
+
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+
 const Game = sequelize.define('Game', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   date: {
-    type: DataTypes.DATE,
-    allowNull: false
+    type: DataTypes.DATEONLY,
+    allowNull: false,
+    get() {
+      return new Date(this.getDataValue('date'));
+    }
   },
   time: {
-    type: DataTypes.STRING,
+    type: DataTypes.TIME,
     allowNull: false
   },
   opponent: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     allowNull: false
   },
-  attendance: {
-    type: DataTypes.JSONB,
-    allowNull: false,
-    defaultValue: {}
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
   }
+}, {
+  tableName: 'games',
+  timestamps: false
 });
+
 
 module.exports = Game;

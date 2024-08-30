@@ -1,13 +1,14 @@
 {
   "name": "blackhawks-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Blackhawks Backend API",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "create-user": "node createDefaultUser.js"
+    "create-user": "node createDefaultUser.js",
+    "import-schedule": "node scripts/import-csv.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "axios": "^1.7.5",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "csv-parse": "^5.5.6",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
